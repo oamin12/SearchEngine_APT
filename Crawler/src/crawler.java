@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 
 public class crawler {
@@ -33,9 +32,7 @@ public class crawler {
 		
 	}
 	
-	public static ArrayList<String> readFromFile(String name){
-
-		
+	public static ArrayList<String> readFromFile(String name){	
 
         try {
             Scanner scanner = new Scanner(new File(name));

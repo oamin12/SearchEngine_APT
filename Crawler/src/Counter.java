@@ -6,7 +6,7 @@ public class Counter {
         }
 
         public synchronized boolean increment(int number) {
-            if(count <= number) {
+            if(count < number) {
                 count++;
                 return true;
             }
@@ -15,6 +15,11 @@ public class Counter {
 
         public synchronized int getCount() {
             return count;
+        }
+        
+        public synchronized boolean isReached(int val)
+        {
+        	return count >= val;
         }
 
     }
