@@ -6,6 +6,11 @@ public class VisitedLinks {
         public VisitedLinks() {
             visitedLinks = new HashSet<String>();
         }
+        
+        public synchronized void add(String url)
+        {
+        	visitedLinks.add(url);
+        }
 
         public synchronized boolean isVisited(String url) {
             if(visitedLinks.contains(url)) 

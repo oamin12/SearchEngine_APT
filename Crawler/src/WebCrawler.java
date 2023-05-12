@@ -1,90 +1,79 @@
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Queue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 
 public class WebCrawler implements Runnable {
 	
-		public static final int MAX_LINKS = 400;
-		public static final int MAX_THREADS = 50;
-		
-		private String firstLink;
+		private int MAX_LINKS;
+		private Queue<String> firstLinks;
         private int id;
-        //private ArrayList<String> visitedLinks;
         private  VisitedLinks visitedLinks;
-        
-        private ArrayList<Thread> runningThreads = new ArrayList<Thread>();
 
         private Counter counterURL;
         
         public Thread thread;
 	
-		public WebCrawler(String firstLink, int id, Counter counterURL, VisitedLinks visitedLinks) {
-            this.firstLink = firstLink;
+		public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS) {
+			
+            this.firstLinks = firstLinks;
+            
             this.id = id;
             this.visitedLinks = visitedLinks;
             thread = new Thread(this);
             thread.start();
             this.counterURL = counterURL;
             this.visitedLinks = visitedLinks;
-            
-            int temp = thread.activeCount()-1;
-            
-            //System.out.println("I am thread"+id +" and I have brozars "+ temp);
+            this.MAX_LINKS = maxURLS;
+         
         }
 		
 		@Override
 		public void run() {
-			crawl(firstLink);
+			crawl(firstLinks);
             //System.out.println(counter.getCount());
 		}
 		
-		private void crawl(String URL)
+		private void crawl(Queue<String> qURL)
 		{
-			if(counterURL.isReached(MAX_LINKS)) 
-                return;
             
+            while(!qURL.isEmpty())
+            {
+            	if(!counterURL.increment(MAX_LINKS)) 
+                    return;
+            	
+                String URL = qURL.poll();
+                Document document = request(URL);
+                
+                System.out.println("Thread " + this.id + " visited " + URL); 
 
-            Document document = request(URL);
+                if(document != null) {
+                    for(Element link : document.select("a[href]")) 
+                    {
 
-            if(document != null) {
-                for(Element link : document.select("a[href]")) 
-                {
-                	
-                	if(!counterURL.increment(MAX_LINKS)) 
-                        return;
-                    
-
-                    String url = link.absUrl("href");
-                    String normalizedURL = normalizeURL(url);
-                    
-                    if(!visitedLinks.isVisited(normalizedURL)) {       
-                   
-                        System.out.println("Thread " + this.id + " visited " + url);
-                        WebCrawler crawler = new WebCrawler(url, counterURL.getCount(), counterURL, visitedLinks);
-                        runningThreads.add(crawler.thread);
-                        //crawl(url);
+                        String url = link.absUrl("href");
+                        String normalizedURL = normalizeURL(url);
+                         
+                        if(!visitedLinks.isVisited(normalizedURL)) 
+                        {                      
+                            qURL.add(url);               
+                        }          
                     }
-                    
-                    
                 }
-
-                 for(Thread thread : runningThreads) {
-                     try {
-                         thread.join();
-                     } catch (InterruptedException e) {
-                         e.printStackTrace();
-                     }
-                 }
             }
+           
 		}
 		
         private Document request(String url) {
@@ -99,7 +88,7 @@ public class WebCrawler implements Runnable {
 
                 return null;
             } catch (IOException e) {
-                System.out.println("my id is "+this.id+"this url is a bitch " + url);
+                System.out.println("my id is "+this.id+" this url is a bitch " + url);
                 return null;
             }
         }
@@ -119,6 +108,52 @@ public class WebCrawler implements Runnable {
         	catch (Exception e) {
               return null;
         	}
+        }
+        
+        private boolean checkRobotsTXT(String url) throws IOException
+        {
+        	URL targetUrl = new URL(url);
+            String domain = targetUrl.getHost();
+
+            URL robotsUrl = new URL("https://" + domain + "/robots.txt");
+            System.out.println(robotsUrl.toString());
+            URLConnection connection = robotsUrl.openConnection();
+            InputStream inputStream = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line = "";
+            boolean isDisallowed = false;
+            while ((line = reader.readLine()) != null) {
+                Pattern pattern = Pattern.compile("User-agent: (.*)");
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    String userAgent = matcher.group(1);
+                    if (userAgent.equals("*")) {
+                        pattern = Pattern.compile("Disallow: (.*)");
+                        matcher = pattern.matcher(line);
+                        if (matcher.find()) {
+                            String disallowDirective = matcher.group(1);
+                            if (targetUrl.getPath().startsWith(disallowDirective)) {
+                                isDisallowed = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            reader.close();
+            inputStream.close();
+
+            if (isDisallowed) {
+                System.out.println("Target URL is disallowed by robots.txt");
+                return false;
+                // Don't crawl the page
+            } else {
+                System.out.println("Target URL is allowed by robots.txt");
+                return true;
+                // Crawl the page
+            }
         }
 		
 	}
