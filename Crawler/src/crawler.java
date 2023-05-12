@@ -10,7 +10,7 @@ import java.util.Queue;
 public class crawler {
 
 	public static final int MAX_THREADS = 20;
-	public static final int MAX_URLS = 1000;
+	public static final int MAX_URLS = 10;
 	
 	public static void main(String[] args) {
 		ArrayList<String> links = readFromFile("seeds.txt");
