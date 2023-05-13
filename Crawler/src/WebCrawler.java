@@ -1,6 +1,7 @@
 import java.io.IOException;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -18,26 +19,38 @@ public class WebCrawler implements Runnable {
 		private int MAX_LINKS;
 		private Queue<String> firstLinks;
         private int id;
-        private  VisitedLinks visitedLinks;
+        private VisitedLinks visitedLinks;
         private HashSet<String> robotsDisallowed = new HashSet<String>();
         private HashSet<String> checkedRobotsFiles = new HashSet<String>();
 
         private Counter counterURL;
         
         public Thread thread;
+
+        private FileHandler myFile;
+        private FileHandler checkpointFile;
+        private FileHandler visitedLinksFile;
+
+        
 	
-		public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS) {
+		public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS, FileHandler fileHandler, 
+            FileHandler checkpointFile, FileHandler visitedLinksFile) 
+        {
 			
             this.firstLinks = firstLinks;
             
             this.id = id;
             this.visitedLinks = visitedLinks;
+
             thread = new Thread(this);
             thread.start();
+
             this.counterURL = counterURL;
-            this.visitedLinks = visitedLinks;
             this.MAX_LINKS = maxURLS;
-         
+            
+            this.myFile = fileHandler;
+            this.checkpointFile = checkpointFile;
+            this.visitedLinksFile = visitedLinksFile;
         }
 		
 		@Override
@@ -55,6 +68,10 @@ public class WebCrawler implements Runnable {
             
             while(!qURL.isEmpty())
             {
+                Queue<String> qtemp = new LinkedList<>(qURL);
+                myFile.writeToFile(qtemp); //saving the links in the file
+                
+                checkpointFile.writeCheckpoint(String.valueOf(thread.activeCount()-1), String.valueOf(counterURL.getCount())); //saving the checkpoint
 
             	if(!counterURL.increment(MAX_LINKS)) //if we have reached the max number of URLs, stop crawling
                     return;
@@ -62,16 +79,19 @@ public class WebCrawler implements Runnable {
                 String URL = qURL.poll();//get the first URL in the queue
 
                 
-                readRobotsFile(URL); //read robots.txt for this URL
+                readRobotsFile(URL); //read robots.txt for this URL and adds the links that are disallowed to robotsDisallowed
                 
 
-                if(isDisallowed(URL))  //if robots.txt disallows this URL, skip it
-                { 
-                    System.out.println("this URL: "+URL+" is disallowed by robots.txt");
-                    continue;
-                }
+//                if(isDisallowed(URL))  //if robots.txt disallows this URL, skip it
+//                { 
+//                    System.out.println("this URL: "+URL+" is disallowed by robots.txt");
+//                    continue;
+//                }
 
                 Document document = request(URL); //request the document at this URL
+
+                //write the visited link
+                visitedLinksFile.writeToFileInLine(URL);
                 
                 System.out.println("Thread " + this.id + " visited " + URL); 
 
