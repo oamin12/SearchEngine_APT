@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class crawler {
 
-	public static final int MAX_URLS = 100;
+	public static final int MAX_URLS = 10;
 	
 	public static void main(String[] args) {
 
