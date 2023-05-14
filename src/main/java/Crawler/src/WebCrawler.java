@@ -1,3 +1,5 @@
+package Crawler.src;
+
 import java.io.IOException;
 
 import java.util.HashSet;
@@ -24,6 +26,7 @@ public class WebCrawler implements Runnable {
         private HashSet<String> checkedRobotsFiles = new HashSet<String>();
 
         private Counter counterURL;
+        private DB db;
         
         public Thread thread;
 
@@ -34,9 +37,8 @@ public class WebCrawler implements Runnable {
         
 	
 		public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS, FileHandler fileHandler, 
-            FileHandler checkpointFile, FileHandler visitedLinksFile) 
+            FileHandler checkpointFile, FileHandler visitedLinksFile, DB db)
         {
-			
             this.firstLinks = firstLinks;
             
             this.id = id;
@@ -51,6 +53,8 @@ public class WebCrawler implements Runnable {
             this.myFile = fileHandler;
             this.checkpointFile = checkpointFile;
             this.visitedLinksFile = visitedLinksFile;
+            this.db = db;
+
         }
 		
 		@Override
@@ -92,7 +96,7 @@ public class WebCrawler implements Runnable {
 
                 //write the visited link
                 visitedLinksFile.writeToFileInLine(URL);
-                
+                db.insert(URL, document.title(), document.body().text());
                 System.out.println("Thread " + this.id + " visited " + URL); 
 
                 if(document != null) {
