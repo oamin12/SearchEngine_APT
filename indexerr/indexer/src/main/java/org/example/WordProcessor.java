@@ -15,7 +15,7 @@ public class WordProcessor {
 
 
     ArrayList<String> stopWords = new ArrayList<String>(Arrays.asList(
-            "a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
+            "a", "about","also", "above", "after", "again", "against", "all", "am", "an", "and",
             "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below",
             "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't",
             "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from",
@@ -58,10 +58,9 @@ public class WordProcessor {
     //main to test the class
     public static void main(String[] args) {
         WordProcessor wp = new WordProcessor();
-        String word = "that";
+        String word = "recurring";
         String stemmedWord = wp.processWord(word);
         System.out.println(stemmedWord);
     }
-
 
 }
