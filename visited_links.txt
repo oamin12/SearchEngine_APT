@@ -1,5 +1,9 @@
 https://www.bbc.com/
-https://en.wikipedia.org/wiki/Egypt
 https://www.nytimes.com/international/
-https://1-a1072.azureedge.net/
-https://me.ign.com/ar/
+https://en.wikipedia.org/wiki/Egypt
+https://www.bbc.co.uk
+https://www.nytimes.com/international/#site-content
+https://www.bbc.com/#orb-modules
+https://www.nytimes.com/international/#after-dfp-ad-top
+https://www.bbc.co.uk/accessibility/
+https://www.nytimes.com/

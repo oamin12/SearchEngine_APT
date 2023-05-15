@@ -1,18 +1,14 @@
 package Crawler.src;
 
-import Crawler.src.FileHandler;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
 
-
 public class crawler {
 
-	public static final int MAX_URLS = 5;
+	public static final int MAX_URLS = 10;
     public static final DB db = new DB();
 	
 	public static void main(String[] args) throws Exception{
@@ -87,22 +83,22 @@ public class crawler {
                 //and give the last thread the remaining links
                 Integer id = 0;
                 String fileName;
-                for(int i = 0; i < MAX_THREADS-2; i++) {
+                for(int i = 0; i < MAX_THREADS-1; i++) {
                     Queue<String> temp = new LinkedList<>();
 
                     temp.add(links.get(i));
                     id = i+1;
                     fileName = "thread" + id.toString() + ".txt";
-                    crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile, db));
+                    crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile,db));
                 }
 
                 Queue<String> temp = new LinkedList<>();
-                for(int i = MAX_THREADS-2; i < links.size(); i++) {
+                for(int i = MAX_THREADS-1; i < links.size(); i++) {
                     temp.add(links.get(i));
                 }
                 id++;
                 fileName = "thread" + id.toString() + ".txt";
-                crawlers.add(new WebCrawler(temp, MAX_THREADS-1, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile, db));
+                crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile,db));
             }
             else
             {

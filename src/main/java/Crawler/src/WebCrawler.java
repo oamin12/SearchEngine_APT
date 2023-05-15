@@ -1,46 +1,44 @@
 package Crawler.src;
 
 import java.io.IOException;
-
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class WebCrawler implements Runnable {
-	
-		private int MAX_LINKS;
-		private Queue<String> firstLinks;
-        private int id;
-        private VisitedLinks visitedLinks;
-        private HashSet<String> robotsDisallowed = new HashSet<String>();
-        private HashSet<String> checkedRobotsFiles = new HashSet<String>();
 
-        private Counter counterURL;
-        private DB db;
-        
-        public Thread thread;
+    private final DB db;
+    private int MAX_LINKS;
+    private Queue<String> firstLinks;
+    private int id;
+    private VisitedLinks visitedLinks;
+    private Map<String, Vector<String>> robotsFiles = new HashMap<String, Vector<String>>();
 
-        private FileHandler myFile;
-        private FileHandler checkpointFile;
-        private FileHandler visitedLinksFile;
+    private Counter counterURL;
 
-        
-	
-		public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS, FileHandler fileHandler, 
+    public Thread thread;
+
+    private FileHandler myFile;
+    private FileHandler checkpointFile;
+    private FileHandler visitedLinksFile;
+
+
+
+		public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS, FileHandler fileHandler,
             FileHandler checkpointFile, FileHandler visitedLinksFile, DB db)
         {
             this.firstLinks = firstLinks;
-            
+
             this.id = id;
             this.visitedLinks = visitedLinks;
 
@@ -49,14 +47,14 @@ public class WebCrawler implements Runnable {
 
             this.counterURL = counterURL;
             this.MAX_LINKS = maxURLS;
-            
+
             this.myFile = fileHandler;
             this.checkpointFile = checkpointFile;
             this.visitedLinksFile = visitedLinksFile;
             this.db = db;
 
         }
-		
+
 		@Override
 		public void run() {
 			try {
@@ -66,61 +64,58 @@ public class WebCrawler implements Runnable {
             }
             //System.out.println(counter.getCount());
 		}
-		
+
 		private void crawl(Queue<String> qURL) throws IOException
 		{
-            
             while(!qURL.isEmpty())
             {
                 Queue<String> qtemp = new LinkedList<>(qURL);
                 myFile.writeToFile(qtemp); //saving the links in the file
-                
+
                 checkpointFile.writeCheckpoint(String.valueOf(thread.activeCount()-1), String.valueOf(counterURL.getCount())); //saving the checkpoint
 
             	if(!counterURL.increment(MAX_LINKS)) //if we have reached the max number of URLs, stop crawling
                     return;
-            	
-                String URL = qURL.poll();//get the first URL in the queue
 
-                
-                readRobotsFile(URL); //read robots.txt for this URL and adds the links that are disallowed to robotsDisallowed
-                
+                String myURL = qURL.poll();//get the first URL in the queue
 
-//                if(isDisallowed(URL))  //if robots.txt disallows this URL, skip it
-//                { 
-//                    System.out.println("this URL: "+URL+" is disallowed by robots.txt");
-//                    continue;
-//                }
 
-                Document document = request(URL); //request the document at this URL
+                if(isDisallowed(myURL))  //if robots.txt disallows this URL, skip it
+                {
+                    System.out.println("this URL: "+myURL+" is disallowed by robots.txt");
+                    continue;
+                }
+
+                Document document = request(myURL); //request the document at this URL
+
 
                 //write the visited link
-                visitedLinksFile.writeToFileInLine(URL);
-                db.insert(URL, document.title(), document.body().text());
-                System.out.println("Thread " + this.id + " visited " + URL); 
+                visitedLinksFile.writeToFileInLine(myURL);
+                db.insert(myURL, document.title(), document.body().text());
+                System.out.println("Thread " + this.id + " visited " + myURL);
 
                 if(document != null) {
-                    for(Element link : document.select("a[href]")) 
+                    for(Element link : document.select("a[href]"))
                     {
 
                         String url = link.absUrl("href");
                         String normalizedURL = normalizeURL(url);
-                         
-                        if(!visitedLinks.isVisited(normalizedURL)) 
-                        {                      
-                            qURL.add(url);               
-                        }          
+
+                        if(!visitedLinks.isVisited(normalizedURL))
+                        {
+                            qURL.add(url);
+                        }
                     }
                 }
             }
-           
+
 		}
-		
+
         private Document request(String url) {
             try {
                 Connection myConnection =  Jsoup.connect(url);
                 Document myDocument = myConnection.get();
-        
+
                 if (myConnection.response().statusCode() == 200) {
                     //System.out.println("Received web page at " + url);
                     return myDocument;
@@ -140,7 +135,7 @@ public class WebCrawler implements Runnable {
 //            } catch (Exception e) {
 //                return null;
 //            }
-        	try {     	
+        	try {
         		URL myurl = new URL(url);
         		String normalizedUrlString = myurl.toURI().normalize().toString();
         		return normalizedUrlString;
@@ -152,66 +147,80 @@ public class WebCrawler implements Runnable {
 
 
 
-        public boolean isDisallowed(String url) {
-            String regex = "(?i)^https?://[^/]+(%s).*$";
-            String disallowedRoutesRegex = String.join("|", robotsDisallowed);
-            Pattern pattern = Pattern.compile(String.format(regex, disallowedRoutesRegex));
-    
-            Matcher matcher = pattern.matcher(url);
-            return matcher.matches();
+    public boolean isDisallowed(String url) {
+        try {
+            readRobotsFile(url);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
+        String host = "";
 
-
-        private void readRobotsFile(String url) throws IOException {
-            
-            Vector<String> routes = new Vector<>();
-            String host;
-
-            URL temp = new URL(url);
-            host = temp.getHost().toLowerCase();
-
-            if(checkedRobotsFiles.contains(host))
-                return;
-
-            checkedRobotsFiles.add(host);   
-            
-            Document document;
-            document = request(temp.getProtocol()+"://"+host+"/robots.txt"); 
-            
-            if(document == null)
-                return;
-
-            String[] words = document.text().split(" ");
-
-            boolean start = false;
-            for (int i = 0; i < words.length-2; i++) {
-                if (words[i].equals("User-agent:") && (words[i + 1].equals("*"))) {
-                    start = true;   //if it allows all user agents
-                    i += 1;
-                    continue;
-                }
-                if (start) {
-                    if (words[i].equals("User-agent:") && !(words[i + 1].equals("*")) || words[i].equals("#"))
-                        break;
-        
-                    routes.add(words[i]);
-                }
-            }
-    
-            for (int i = 0; i < routes.size() - 1; i++) {
-                if (routes.get(i).equals("Disallow:"))
-                {
-                    robotsDisallowed.add(temp.getProtocol()+"://" + host + routes.get(i + 1));     //add the disallow of the domain to the disallowed list
-                    //System.out.println("disallowed: "+temp.getProtocol()+"://" + host + routes.get(i + 1));
-                }
-                    
-            }
-
+        try {
+            host = new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
 
-        
-        
+        if (robotsFiles.containsKey(host)) {
+            for (int i = 0; i < robotsFiles.get(host).size(); i++) {
+                if (url.startsWith(robotsFiles.get(host).get(i)))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
+    private void readRobotsFile(String url) throws IOException {
+
+        Vector<String> routes = new Vector<>();
+        Vector<String> robotsDisallowed = new Vector<>();
+        String host;
+
+        URL temp = new URL(url);
+        host = temp.getHost().toLowerCase();
+
+        if(robotsFiles.containsKey(host))
+            return;
+
+
+
+        Document document;
+        String robotsLink = temp.getProtocol()+"://"+host+"/robots.txt";
+        document = request(robotsLink);
+
+        if(document == null)
+            return;
+
+        String[] words = document.text().split(" ");
+
+        boolean start = false;
+        for (int i = 0; i < words.length-2; i++) {
+            if (words[i].equals("User-agent:") && (words[i + 1].equals("*"))) {
+                start = true;   //if it allows all user agents
+                i += 1;
+                continue;
+            }
+            if (start) {
+                if (words[i].equals("User-agent:") && !(words[i + 1].equals("*")) || words[i].equals("#"))
+                    break;
+
+                routes.add(words[i]);
+            }
+        }
+
+        for (int i = 0; i < routes.size() - 1; i++) {
+            if (routes.get(i).equals("Disallow:"))
+                robotsDisallowed.add(temp.getProtocol()+"://" + host + routes.get(i + 1));     //add the disallow of the domain to the disallowed list
+        }
+
+        robotsFiles.put(host, robotsDisallowed);
+    }
+
+
 //        private boolean checkRobotsTXT(String url) throws IOException
 //        {
 //        	URL targetUrl = new URL(url);
@@ -257,5 +266,5 @@ public class WebCrawler implements Runnable {
 //                // Crawl the page
 //            }
 //        }
-		
+
 	}
