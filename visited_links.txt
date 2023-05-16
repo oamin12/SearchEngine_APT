@@ -1,0 +1,9 @@
+https://www.bbc.com/
+https://en.wikipedia.org/wiki/Egypt
+https://www.nytimes.com/international/
+https://www.bbc.co.uk
+https://www.bbc.com/#orb-modules
+https://en.wikipedia.org/wiki/Egypt#bodyContent
+https://www.bbc.co.uk/accessibility/
+https://www.nytimes.com/international/#site-content
+https://account.bbc.com/account
