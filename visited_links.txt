@@ -1,9 +1,9 @@
 https://www.bbc.com/
-https://www.nytimes.com/international/
 https://en.wikipedia.org/wiki/Egypt
+https://www.nytimes.com/international/
 https://www.bbc.co.uk
-https://www.nytimes.com/international/#site-content
 https://www.bbc.com/#orb-modules
-https://www.nytimes.com/international/#after-dfp-ad-top
+https://en.wikipedia.org/wiki/Egypt#bodyContent
 https://www.bbc.co.uk/accessibility/
-https://www.nytimes.com/
+https://www.nytimes.com/international/#site-content
+https://account.bbc.com/account
