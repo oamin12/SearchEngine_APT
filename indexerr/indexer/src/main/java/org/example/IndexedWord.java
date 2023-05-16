@@ -8,6 +8,9 @@ public class IndexedWord {
 
     String word;
     int frequency=0;
+    boolean InTitle=false;
+    boolean InH1=false;
+    boolean InH2=false;
     double tf=0.0;
     String url;
     //array of indecies where the word is found in the document
@@ -42,6 +45,32 @@ public class IndexedWord {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public boolean getInTitle() {
+        return InTitle;
+    }
+
+    public void setInTitle(Boolean InTitle) {
+        this.InTitle = InTitle;
+    }
+
+    public boolean getInH1() {
+        return InH1;
+    }
+
+    public void setInH1(Boolean InH1) {
+        this.InH1 = InH1;
+    }
+
+    public boolean getInH2() {
+        return InH2;
+    }
+
+    public void setInH2(Boolean InH2) {
+        this.InH2 = InH2;
+    }
+
+
     public ArrayList<Integer> getIndecies() {
         return indecies;
     }
@@ -57,6 +86,7 @@ public class IndexedWord {
     public void setContent(String content) {
         this.content = content;
     }
+    
     
     
 

@@ -43,8 +43,8 @@ public class WordProcessor {
         //remove stop words
         //stem the word
         //return the word
-        if (stopWords.contains(word)) {
-            return null;
+        if (stopWords.contains(word.toLowerCase())) {
+            return "";
         }
         else {
             String stemmedWord = porterStemmer.stem(word);
@@ -58,7 +58,7 @@ public class WordProcessor {
     //main to test the class
     public static void main(String[] args) {
         WordProcessor wp = new WordProcessor();
-        String word = "recurring";
+        String word = "I";
         String stemmedWord = wp.processWord(word);
         System.out.println(stemmedWord);
     }
