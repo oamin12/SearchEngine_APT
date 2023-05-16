@@ -1,0 +1,43 @@
+.footer {
+    background-color: rgb(255, 255, 255);
+    text-align: center;
+    padding: 1rem;
+    
+    border: none;
+    border-bottom: 1px solid #fbf7f724;
+}
+
+.logo {
+    width: 5rem;
+    margin: auto;
+}
+.logo img {
+    width: 100%;
+}
+.logoName {
+    display: block;
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 1rem;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.info {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    position: relative;
+    align-items: center;
+
+    justify-content: center;
+    filter:invert(0.5);
+}
+
+
+.info p {
+    letter-spacing: 2px;
+    font-size: 1.5rem;
+    color: black;
+}
