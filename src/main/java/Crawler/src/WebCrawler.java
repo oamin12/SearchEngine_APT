@@ -11,6 +11,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -88,13 +89,30 @@ public class WebCrawler implements Runnable {
 
                 Document document = request(myURL); //request the document at this URL
 
-
                 //write the visited link
                 visitedLinksFile.writeToFileInLine(myURL);
-                db.insert(myURL, document.title(), document.body().text());
-                System.out.println("Thread " + this.id + " visited " + myURL);
 
                 if(document != null) {
+                    System.out.println("Thread " + this.id + " visited " + myURL);
+                    //Get all h1 tags
+                    //Put all the h1 tags in a string
+                    String h1TagsString = "";
+                    for(Element h1Tag : document.select("h1"))
+                    {
+                        h1TagsString += h1Tag.text() + " ";
+                    }
+
+                    //Get all h2 tags
+                    //Put all the h2 tags in a string
+                    String h2TagsString = "";
+                    for(Element h2Tag : document.select("h2"))
+                    {
+                        h2TagsString += h2Tag.text() + " ";
+                    }
+                    // inserting data in the database
+                    db.insert(myURL, document.title(), document.body().text(), h1TagsString, h2TagsString);
+
+
                     for(Element link : document.select("a[href]"))
                     {
 
@@ -219,52 +237,5 @@ public class WebCrawler implements Runnable {
 
         robotsFiles.put(host, robotsDisallowed);
     }
-
-
-//        private boolean checkRobotsTXT(String url) throws IOException
-//        {
-//        	URL targetUrl = new URL(url);
-//            String domain = targetUrl.getHost();
-//
-//            URL robotsUrl = new URL("https://" + domain + "/robots.txt");
-//            System.out.println(robotsUrl.toString());
-//            URLConnection connection = robotsUrl.openConnection();
-//            InputStream inputStream = connection.getInputStream();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//
-//            String line = "";
-//            boolean isDisallowed = false;
-//            while ((line = reader.readLine()) != null) {
-//                Pattern pattern = Pattern.compile("User-agent: (.*)");
-//                Matcher matcher = pattern.matcher(line);
-//                if (matcher.find()) {
-//                    String userAgent = matcher.group(1);
-//                    if (userAgent.equals("*")) {
-//                        pattern = Pattern.compile("Disallow: (.*)");
-//                        matcher = pattern.matcher(line);
-//                        if (matcher.find()) {
-//                            String disallowDirective = matcher.group(1);
-//                            if (targetUrl.getPath().startsWith(disallowDirective)) {
-//                                isDisallowed = true;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            reader.close();
-//            inputStream.close();
-//
-//            if (isDisallowed) {
-//                System.out.println("Target URL is disallowed by robots.txt");
-//                return false;
-//                // Don't crawl the page
-//            } else {
-//                System.out.println("Target URL is allowed by robots.txt");
-//                return true;
-//                // Crawl the page
-//            }
-//        }
-
-	}
+    
+}
