@@ -6,6 +6,7 @@ public class CrawlerOP {
     String title;
     String h1;
     String h2;
+    
 
     public CrawlerOP() {
         //this is the constructor

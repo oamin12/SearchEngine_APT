@@ -21,7 +21,7 @@ public class indexer {
     }
 
 
-    public ArrayList<IndexedWord> index(String documentContent,String url,String title,String h1,String h2) {
+    public ArrayList<IndexedWord> index(String documentContent,String url,String title,String h1,String h2,String Linktitle) {
 
         //this method will index the word
         //it will store the stemmed word, the url, and the frequency of the word in the webpage and idf
@@ -151,6 +151,7 @@ public class indexer {
             indexedWord.setFrequency(frequency);
             indexedWord.setTf(tf);
             indexedWord.setUrl(url);
+            indexedWord.setTitle(Linktitle);
             //check on the size of the list of indecies
             while(listS.get(listS.size()-1)<0)
             {
@@ -232,7 +233,7 @@ public class indexer {
          //read the document content from the file
          String documentContent = readFileAsString("D:\\University\\Senior 1\\2nd Term\\Advanced Programming Techniques\\Project\\SearchEngine_APT\\indexerr\\indexer\\src\\main\\java\\org\\example\\content.txt");
          //index the document content
-         ArrayList<IndexedWord> indexedWords = indexer.index(documentContent,"https://www.google.com", "Information", "Limit", "Contacted");
+         ArrayList<IndexedWord> indexedWords = indexer.index(documentContent,"https://www.google.com", "Information", "Limit", "Contacted","title");
          //loop through the indexed words and print them
          for (IndexedWord indexedWord : indexedWords) {
              System.out.println(indexedWord.getWord() + " " + indexedWord.getFrequency() + " " + indexedWord.getTf() + " " + indexedWord.getUrl() + " " + indexedWord.getInTitle() + " " + indexedWord.getInH1() + " " + indexedWord.getInH2());

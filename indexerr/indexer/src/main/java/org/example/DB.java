@@ -53,7 +53,7 @@ public class DB {
         ArrayList<IndexedWord> indexed = new ArrayList<IndexedWord>();
         for (CrawlerOP op : arr) {
             indexer indexer = new indexer();
-            ArrayList<IndexedWord> temp = indexer.index(op.getBody(),op.getUrl(),op.getTitle(),op.getH1(),op.getH2());
+            ArrayList<IndexedWord> temp = indexer.index(op.getBody(),op.getUrl(),op.getTitle(),op.getH1(),op.getH2(),op.getTitle());
             for (IndexedWord word : temp) {
                 indexed.add(word);
             }
@@ -106,6 +106,7 @@ public class DB {
             newList.append("inH1", word.getInH1());
             newList.append("inH2", word.getInH2());
             newList.append("content", word.getContent());
+            newList.append("title",word.getTitle());
             newList.append("indicies", word.getIndecies());
             
             

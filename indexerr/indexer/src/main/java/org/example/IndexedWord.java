@@ -8,6 +8,7 @@ public class IndexedWord {
 
     String word;
     int frequency=0;
+    String title;
     boolean InTitle=false;
     boolean InH1=false;
     boolean InH2=false;
@@ -87,6 +88,13 @@ public class IndexedWord {
         this.content = content;
     }
     
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     
     
 
