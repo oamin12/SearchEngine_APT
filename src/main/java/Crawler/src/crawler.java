@@ -8,10 +8,10 @@ import java.util.Scanner;
 
 public class crawler {
 
-	public static final int MAX_URLS = 10;
+    public static final int MAX_URLS = 30;
     public static final DB db = new DB();
-	
-	public static void main(String[] args) throws Exception{
+
+    public static void main(String[] args) throws Exception{
 
         //get number of threads from the user
         Scanner scanner = new Scanner(System.in);
@@ -23,6 +23,7 @@ public class crawler {
         FileHandler seeds = new FileHandler("seeds.txt");
         FileHandler checkpoint = new FileHandler("crawler_checkpoint.txt");
         FileHandler visitedLinksFile = new FileHandler("visited_links.txt");
+        FileHandler compactedStringsFile = new FileHandler("compact_strings.txt");
 
 
         ArrayList<String> links = seeds.readFileInArrayList(); //get the links from the seeds file
@@ -38,7 +39,7 @@ public class crawler {
         String answer;
         if(checkpointInfo.get(0).equals(MAX_THREADS.toString()))
         {
-          //ask the user if he wants to continue from the checkpoint
+            //ask the user if he wants to continue from the checkpoint
             do {
                 System.out.println("Previous crawl detected, do you want to continue from the last checkpoint? (y/n)");
                 answer = scanner.next();
@@ -47,6 +48,7 @@ public class crawler {
             if(answer.equals("y") || answer.equals("Y"))
             {
                 VisitedLinks visitedLinks = new VisitedLinks("visited_links.txt", true); // list of all the visited links
+                CompactString compactedStrings = new CompactString("compact_strings.txt", true); // list of all the compacted strings
 
                 counter.set(Integer.parseInt(checkpointInfo.get(1)));
                 //start all the threads and send them the links from the checkpoint
@@ -55,14 +57,14 @@ public class crawler {
                     Integer id = i+1;
                     String fileName = "thread" + id.toString() + ".txt";
                     FileHandler file = new FileHandler(fileName);
-                    crawlers.add(new WebCrawler(file.readFileInQueue(), id, counter, visitedLinks, MAX_URLS, file, checkpoint, visitedLinksFile, db));
+                    crawlers.add(new WebCrawler(file.readFileInQueue(), id, counter, visitedLinks, MAX_URLS, file, checkpoint, visitedLinksFile, db, compactedStrings, compactedStringsFile));
                 }
             }
 
         }
         else
         {
-        	answer = "n";
+            answer = "n";
         }
 
 
@@ -73,9 +75,10 @@ public class crawler {
         if(answer.equals("n") || answer.equals("N"))
         {
             VisitedLinks visitedLinks = new VisitedLinks("visited_links.txt", false); // list of all the visited links
+            CompactString compactedStrings = new CompactString("compact_strings.txt", false); // list of all the compacted strings
 
             for(String link: links)
-        	    visitedLinks.add(link); //add the links from the seeds file to the visited links list
+                visitedLinks.add(link); //add the links from the seeds file to the visited links list
 
             if(MAX_THREADS < links.size())
             {
@@ -89,7 +92,7 @@ public class crawler {
                     temp.add(links.get(i));
                     id = i+1;
                     fileName = "thread" + id.toString() + ".txt";
-                    crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile,db));
+                    crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile,db, compactedStrings, compactedStringsFile));
                 }
 
                 Queue<String> temp = new LinkedList<>();
@@ -98,7 +101,7 @@ public class crawler {
                 }
                 id++;
                 fileName = "thread" + id.toString() + ".txt";
-                crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile,db));
+                crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile,db, compactedStrings, compactedStringsFile));
             }
             else
             {
@@ -108,7 +111,7 @@ public class crawler {
                     temp.add(links.get(i));
                     Integer id = i+1;
                     String fileName = "thread" + id.toString() + ".txt";
-                    crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile, db));
+                    crawlers.add(new WebCrawler(temp, id, counter, visitedLinks, MAX_URLS, new FileHandler(fileName), checkpoint, visitedLinksFile, db, compactedStrings, compactedStringsFile));
                 }
             }
         }
@@ -127,6 +130,6 @@ public class crawler {
         scanner.close();
 
         System.out.println(counter.getCount());
-	}
+    }
 
 }
