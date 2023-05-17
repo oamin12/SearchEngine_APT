@@ -1,7 +1,8 @@
 import Footer from "./components/Footer";
 import Nav from "./components/Nav";
 import Home from "./pages/Home";
-import { Switch, Routes, Route } from "react-router-dom"
+import Results from "./pages/Results";
+import { Switch, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Nav />
       <Routes>
         <Route path="/" element={<Home />} exact></Route>
+        <Route path="/results" element={<Results />} exact></Route>
       </Routes>
       <Footer />
     </div>

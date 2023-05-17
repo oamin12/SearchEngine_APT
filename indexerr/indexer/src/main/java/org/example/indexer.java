@@ -41,7 +41,7 @@ public class indexer {
         for (int i = 0; i < words.length; i++) {
             String stemmedWord = words[i].replaceAll("[^a-zA-Z]", "");
             stemmedWord = wp.processWord(stemmedWord);
-            if (stemmedWord != null && !stemmedWord.equals("")) {
+            if (stemmedWord != null && !stemmedWord.equals("") ) {
                  //remove (",',?,-,.,!,@,#,$,%,^,&,*,(,),{,},[,],/,<,>,:,;)
                 if (index.containsKey(stemmedWord)==false) {
                     ArrayList<Integer> indecies = new ArrayList<Integer>();
@@ -189,7 +189,7 @@ public class indexer {
                 //construct a word from the first instance of the word
                 for(int i=-4;i<5;i++)
                 {
-                    if(FirstInstance+i>=0 && FirstInstance+i<wordsSpacePlitOnly.length)
+                    if(FirstInstance+i>=0 && FirstInstance+i<words.length)
                     {
                         sentence+=words[FirstInstance+i]+" ";
                     }

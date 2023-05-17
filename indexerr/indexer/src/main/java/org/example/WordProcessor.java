@@ -48,17 +48,17 @@ public class WordProcessor {
         }
         else {
             String stemmedWord = porterStemmer.stem(word);
-            stemmedWords.put(word, stemmedWord);
-            return stemmedWord;
+            //stemmedWords.put(word, stemmedWord.toLowerCase());
+            return stemmedWord.toLowerCase();
         }
     }
-    public Dictionary<String, String> getStemmedWords() {
-        return stemmedWords;
-    }
+   // public Dictionary<String, String> getStemmedWords() {
+       // return stemmedWords;
+    //}
     //main to test the class
     public static void main(String[] args) {
         WordProcessor wp = new WordProcessor();
-        String word = "I";
+        String word = "bed";
         String stemmedWord = wp.processWord(word);
         System.out.println(stemmedWord);
     }
