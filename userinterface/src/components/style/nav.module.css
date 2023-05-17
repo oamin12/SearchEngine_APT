@@ -1,6 +1,6 @@
 .nav{
     background-color: rgb(238, 190, 101);
-    opacity: 100%;
+    opacity: 90%;
     padding: 4rem 10%;
     color: white;
     display: flex;
@@ -21,6 +21,7 @@
 {
     width: 5rem;
     opacity: 100%;
+    cursor: pointer;
 }
 
 
