@@ -88,7 +88,6 @@ public class DB {
     */
     public void insertIndexed(ArrayList<IndexedWord> indexed) {
        
-        indexedCollection.drop();
         List<WriteModel<Document>> updateModels = new ArrayList<>();
         UpdateOptions options = new UpdateOptions().upsert(true);
         for (IndexedWord word : indexed) {
@@ -146,12 +145,23 @@ public class DB {
         //     System.out.println(op.getUrl() + " " + op.getTitle() + " "  + " " + op.getH1() + " " + op.getH2());
         // }
         //test index function
-        ArrayList<IndexedWord> indexed = db.index(arr);
-       for (IndexedWord word : indexed) {
-           System.out.println(word.getWord() +  " " + word.getFrequency() + " " + word.getTf() + " " + word.getUrl() + " " + word.getInTitle() + " " + word.getInH1() + " " + word.getInH2() + " " + word.getContent());
-       }
+        int count=0;
+        //split data 3ashan el database byt3ml crash 3ashan el data kteer awi
+        while(count<arr.size()){
+            ArrayList<CrawlerOP> temp = new ArrayList<CrawlerOP>();
+            for(int i=0;i<300;i++){
+                temp.add(arr.get(count));
+                count++;
+            }
+            ArrayList<IndexedWord> indexed = db.index(temp);
+            db.insertIndexed(indexed);
+        }
+    //     ArrayList<IndexedWord> indexed = db.index(arr);
+    //    for (IndexedWord word : indexed) {
+    //        System.out.println(word.getWord() +  " " + word.getFrequency() + " " + word.getTf() + " " + word.getUrl() + " " + word.getInTitle() + " " + word.getInH1() + " " + word.getInH2() + " " + word.getContent());
+    //    }
        //test insertIndexed function
-        db.insertIndexed(indexed);
+        //db.insertIndexed(indexed);
 
 
         // //test getAll function
