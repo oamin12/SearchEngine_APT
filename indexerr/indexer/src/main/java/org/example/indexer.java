@@ -85,7 +85,7 @@ public class indexer {
         //if the word is already in the index, increment the count by 1
         //add another integer to the indecies arraylist to indicate that this word is in the title at the end of the indecies arraylist
         for (int i = 0; i < wordsTitle.length; i++) {
-            String wordNoSpecial = words[i].replaceAll("[^a-zA-Z]", "");
+            String wordNoSpecial = wordsTitle[i].replaceAll("[^a-zA-Z]", "");
             
             stemmedWord = wp.processWord(wordNoSpecial);
 
@@ -133,7 +133,7 @@ public class indexer {
         //if the word is already in the index, increment the count by 1
         //add another integer to the indecies arraylist to indicate that this word is in the h1 at the end of the indecies arraylist
         for (int i = 0; i < wordsH1.length; i++) {
-            String wordNoSpecial = words[i].replaceAll("[^a-zA-Z]", "");
+            String wordNoSpecial = wordsH1[i].replaceAll("[^a-zA-Z]", "");
             stemmedWord = wp.processWord(wordNoSpecial);
             if(wordNoSpecial!="")
             {
@@ -180,7 +180,7 @@ public class indexer {
         //if the word is already in the index, increment the count by 1
         //add another integer to the indecies arraylist to indicate that this word is in the h2 at the end of the indecies arraylist
         for (int i = 0; i < wordsH2.length; i++) {
-            String wordNoSpecial = words[i].replaceAll("[^a-zA-Z]", "");
+            String wordNoSpecial = wordsH2[i].replaceAll("[^a-zA-Z]", "");
             stemmedWord = wp.processWord(wordNoSpecial);
             if(wordNoSpecial!="")
             {
@@ -394,18 +394,18 @@ public class indexer {
          ArrayList<IndexedWord> indexedWords = indexedWordss.get(0);
          ArrayList<IndexedWord> indexedWordsUnstemmed = indexedWordss.get(1);
          //loop through the indexed words and print them
-        //  for (IndexedWord indexedWord : indexedWords) {
-        //      System.out.println(indexedWord.getWord() + " " + indexedWord.getFrequency() + " " + indexedWord.getTf() + " " + indexedWord.getUrl() + " " + indexedWord.getInTitle() + " " + indexedWord.getInH1() + " " + indexedWord.getInH2());
-        //      //loop through the indecies of the word and print them
-        //         for (int index : indexedWord.getIndices()) {
-        //             System.out.print(index + " ");
-        //         }
-        //         System.out.println();
-        //         //print the content of the word
-        //         System.out.println(indexedWord.getContent());
+         for (IndexedWord indexedWord : indexedWords) {
+             System.out.println(indexedWord.getWord() + " " + indexedWord.getFrequency() + " " + indexedWord.getTf() + " " + indexedWord.getUrl() + " " + indexedWord.getInTitle() + " " + indexedWord.getInH1() + " " + indexedWord.getInH2());
+             //loop through the indecies of the word and print them
+                for (int index : indexedWord.getIndices()) {
+                    System.out.print(index + " ");
+                }
+                System.out.println();
+                //print the content of the word
+                System.out.println(indexedWord.getContent());
                 
 
-        //  }
+         }
             //loop through the indexed words and print them
             for (IndexedWord indexedWord : indexedWordsUnstemmed) {
                 System.out.println(indexedWord.getWord() + " " + indexedWord.getFrequency() + " " + indexedWord.getTf() + " " + indexedWord.getUrl() + " " + indexedWord.getInTitle() + " " + indexedWord.getInH1() + " " + indexedWord.getInH2());
