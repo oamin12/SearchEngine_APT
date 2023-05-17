@@ -13,8 +13,20 @@ public class crawler {
 
     public static void main(String[] args) throws Exception{
 
-        //get number of threads from the user
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Hello, welcome to the web crawler!");
+        System.out.println("1-Crawl the web\t 2-Calculate pages popularity\t 3-Exit");
+        Integer options = scanner.nextInt();
+        if(options == 3)
+            return;
+        else if (options == 2) {
+            PagePopularity.calculate(db);
+            System.out.println("Done!");
+            return;
+        }
+
+        //get number of threads from the user
+        scanner = new Scanner(System.in);
         System.out.println("Enter the number of threads: ");
 
         Integer MAX_THREADS = scanner.nextInt(); //number of threads
