@@ -1,6 +1,7 @@
 package Crawler.src;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -155,7 +156,13 @@ public class WebCrawler implements Runnable {
 //            }
         	try {
         		URL myurl = new URL(url);
-        		String normalizedUrlString = myurl.toURI().normalize().toString();
+                URI u = myurl.toURI();
+                if( u.getFragment() != null ) {
+                    u = new URI( u.getScheme(), u.getSchemeSpecificPart(), null ); }
+        		String normalizedUrlString = u.normalize().toString();
+
+                //remove fragment from url
+
         		return normalizedUrlString;
         	}
         	catch (Exception e) {

@@ -25,3 +25,10 @@ hs_err_pid*
 *.xml
 /target/
 *.txt
+crawler_checkpoint.txt
+*.txt
+thread1.txt
+thread2.txt
+thread3.txt
+thread4.txt
+visited_links.txt
