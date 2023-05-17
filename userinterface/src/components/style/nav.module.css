@@ -12,6 +12,11 @@
     z-index: 5;
     position: fixed;
 }
+/* disable navigation history color changing*/
+.nav a{
+    text-decoration: none;
+    color: white;
+}
 .image
 {
     width: 5rem;

@@ -1,12 +1,29 @@
-.main
-{
-
-}
-.websitetop
-{
-
-}
-.websiteinfo
-{
-    
-}
+.searchcard {
+    background-color: #f2f2f2;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+    padding: 1.6rem;
+    margin-bottom: 1.6rem;
+    margin-left:2rem ;
+    width: 100%;
+  }
+  
+  .searchcardtitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  
+  .searchcardurl {
+    font-size: 2rem;
+    color: #666;
+  }
+  
+  .searchcardcontent {
+    font-size: 2rem;
+    font-weight: 300;
+    padding-top: 1rem;
+    color: #444;
+  }
+  

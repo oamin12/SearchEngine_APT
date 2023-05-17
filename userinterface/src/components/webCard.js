@@ -4,21 +4,11 @@ import classes from "./style/webcard.module.css";
 
 const webCard = (props) => {
   return (
-    <div className={classes.main}>
-      <div className={classes.websitetop}>
-        <div>
-          <FaGlobeAfrica size={5} />
-        </div>
-        <div className={classes.websiteinfo}>
-          <label>{props.title}</label>
-          <label>{props.link}</label>
-        </div>
-      </div>
-      <div className={classes.hyperlink}>Website hyperlink</div>
-      <div className={classes.websitedesc}>
-        <p>{props.desc}</p>
-      </div>
-    </div>
+    <div className={classes.searchcard}>
+      <h2 className={classes.searchcardtitle}>🦆  {props.title}</h2>
+      <a href={props.url} className={classes.searchcardurl} >{props.url}</a>
+      <p className={classes.searchcardcontent}>{props.content}</p>
+  </div>
   );
 };
 export default webCard;

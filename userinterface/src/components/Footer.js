@@ -9,7 +9,7 @@ const Footer = () => {
          <div className={classes.logoContainer}>
             <div className={classes.info}>
               <p>
-                Developed by Amon 𓂀
+                Developed by TEAM #3 Team No Sleep 𓂀
               </p>
               <a href="https://github.com/oamin12">
                 <LinkIcon style={{fontSize:25}} />
