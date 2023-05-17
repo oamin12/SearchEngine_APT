@@ -238,7 +238,7 @@ public class indexer {
          for (IndexedWord indexedWord : indexedWords) {
              System.out.println(indexedWord.getWord() + " " + indexedWord.getFrequency() + " " + indexedWord.getTf() + " " + indexedWord.getUrl() + " " + indexedWord.getInTitle() + " " + indexedWord.getInH1() + " " + indexedWord.getInH2());
              //loop through the indecies of the word and print them
-                for (int index : indexedWord.getIndecies()) {
+                for (int index : indexedWord.getIndices()) {
                     System.out.print(index + " ");
                 }
                 System.out.println();

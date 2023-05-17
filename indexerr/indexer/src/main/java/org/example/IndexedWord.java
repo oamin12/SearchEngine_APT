@@ -72,7 +72,7 @@ public class IndexedWord {
     }
 
 
-    public ArrayList<Integer> getIndecies() {
+    public ArrayList<Integer> getIndices() {
         return indecies;
     }
     public void setIndecies(ArrayList<Integer> indecies) {

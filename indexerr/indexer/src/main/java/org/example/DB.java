@@ -107,7 +107,7 @@ public class DB {
             newList.append("inH2", word.getInH2());
             newList.append("content", word.getContent());
             newList.append("title",word.getTitle());
-            newList.append("indicies", word.getIndecies());
+            newList.append("indices", word.getIndices());
             
             
 
