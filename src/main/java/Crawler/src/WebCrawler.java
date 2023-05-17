@@ -24,6 +24,7 @@ public class WebCrawler implements Runnable {
     private Queue<String> firstLinks;
     private int id;
     private VisitedLinks visitedLinks;
+    private CompactString compactString;
     private Map<String, Vector<String>> robotsFiles = new HashMap<String, Vector<String>>();
 
     private Counter counterURL;
@@ -33,142 +34,155 @@ public class WebCrawler implements Runnable {
     private FileHandler myFile;
     private FileHandler checkpointFile;
     private FileHandler visitedLinksFile;
+    private FileHandler compactStringFile;
 
 
+    public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS, FileHandler fileHandler,
+                      FileHandler checkpointFile, FileHandler visitedLinksFile, DB db, CompactString compactString, FileHandler compactStringFile)
+    {
+        this.firstLinks = firstLinks;
 
-		public WebCrawler(Queue<String> firstLinks, int id, Counter counterURL, VisitedLinks visitedLinks, int maxURLS, FileHandler fileHandler,
-            FileHandler checkpointFile, FileHandler visitedLinksFile, DB db)
-        {
-            this.firstLinks = firstLinks;
+        this.id = id;
+        this.visitedLinks = visitedLinks;
 
-            this.id = id;
-            this.visitedLinks = visitedLinks;
+        thread = new Thread(this);
+        thread.start();
 
-            thread = new Thread(this);
-            thread.start();
+        this.counterURL = counterURL;
+        this.MAX_LINKS = maxURLS;
 
-            this.counterURL = counterURL;
-            this.MAX_LINKS = maxURLS;
+        this.myFile = fileHandler;
+        this.checkpointFile = checkpointFile;
+        this.visitedLinksFile = visitedLinksFile;
+        this.compactStringFile = compactStringFile;
+        this.compactString = compactString;
+        this.db = db;
 
-            this.myFile = fileHandler;
-            this.checkpointFile = checkpointFile;
-            this.visitedLinksFile = visitedLinksFile;
-            this.db = db;
+    }
 
+    @Override
+    public void run() {
+        try {
+            crawl(firstLinks);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        //System.out.println(counter.getCount());
+    }
 
-		@Override
-		public void run() {
-			try {
-                crawl(firstLinks);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //System.out.println(counter.getCount());
-		}
+    private void crawl(Queue<String> qURL) throws IOException {
+        while(!qURL.isEmpty())
+        {
+            Queue<String> qtemp = new LinkedList<>(qURL);
+            myFile.writeToFile(qtemp); //saving the links in the file
 
-		private void crawl(Queue<String> qURL) throws IOException
-		{
-            while(!qURL.isEmpty())
+            checkpointFile.writeCheckpoint(String.valueOf(thread.activeCount()-1), String.valueOf(counterURL.getCount())); //saving the checkpoint
+
+            String myURL = qURL.poll();//get the first URL in the queue
+
+
+            if(isDisallowed(myURL))  //if robots.txt disallows this URL, skip it
             {
-                Queue<String> qtemp = new LinkedList<>(qURL);
-                myFile.writeToFile(qtemp); //saving the links in the file
+                System.out.println("this URL: "+myURL+" is disallowed by robots.txt");
+                continue;
+            }
 
-                checkpointFile.writeCheckpoint(String.valueOf(thread.activeCount()-1), String.valueOf(counterURL.getCount())); //saving the checkpoint
 
-            	if(!counterURL.increment(MAX_LINKS)) //if we have reached the max number of URLs, stop crawling
+            Document document = request(myURL); //request the document at this URL
+
+            //write the visited link
+            visitedLinksFile.writeToFileInLine(myURL);
+
+            if(document != null) {
+
+                //Get all h1 tags
+                //Put all the h1 tags in a string
+                String h1TagsString = "";
+                for(Element h1Tag : document.select("h1"))
+                {
+                    h1TagsString += h1Tag.text() + " ";
+                }
+
+                //Get all h2 tags
+                //Put all the h2 tags in a string
+                String h2TagsString = "";
+                for(Element h2Tag : document.select("h2"))
+                {
+                    h2TagsString += h2Tag.text() + " ";
+                }
+
+                //checking compact string
+                String siteComapctString = h1TagsString + h2TagsString;
+                if(!siteComapctString.equals("") && compactString.contains(siteComapctString)) //if the compact string is already in the file, skip this URL
+                    continue;
+
+
+                if(!counterURL.increment(MAX_LINKS)) //if we have reached the max number of URLs, stop crawling
                     return;
 
-                String myURL = qURL.poll();//get the first URL in the queue
+                System.out.println("Thread " + this.id + " visited " + myURL);
+
+                //writing the compact string to the file
+                compactStringFile.writeToFileInLine(siteComapctString);
+
+                // inserting data in the database
+                db.insert(myURL, document.title(), document.body().text(), h1TagsString, h2TagsString);
 
 
-                if(isDisallowed(myURL))  //if robots.txt disallows this URL, skip it
+                for(Element link : document.select("a[href]"))
                 {
-                    System.out.println("this URL: "+myURL+" is disallowed by robots.txt");
-                    continue;
-                }
 
-                Document document = request(myURL); //request the document at this URL
+                    String url = link.absUrl("href");
+                    String normalizedURL = normalizeURL(url);
 
-                //write the visited link
-                visitedLinksFile.writeToFileInLine(myURL);
-
-                if(document != null) {
-                    System.out.println("Thread " + this.id + " visited " + myURL);
-                    //Get all h1 tags
-                    //Put all the h1 tags in a string
-                    String h1TagsString = "";
-                    for(Element h1Tag : document.select("h1"))
+                    if(!visitedLinks.isVisited(normalizedURL))
                     {
-                        h1TagsString += h1Tag.text() + " ";
-                    }
-
-                    //Get all h2 tags
-                    //Put all the h2 tags in a string
-                    String h2TagsString = "";
-                    for(Element h2Tag : document.select("h2"))
-                    {
-                        h2TagsString += h2Tag.text() + " ";
-                    }
-                    // inserting data in the database
-                    db.insert(myURL, document.title(), document.body().text(), h1TagsString, h2TagsString);
-
-
-                    for(Element link : document.select("a[href]"))
-                    {
-
-                        String url = link.absUrl("href");
-                        String normalizedURL = normalizeURL(url);
-
-                        if(!visitedLinks.isVisited(normalizedURL))
-                        {
-                            qURL.add(url);
-                        }
+                        qURL.add(url);
                     }
                 }
-            }
-
-		}
-
-        private Document request(String url) {
-            try {
-                Connection myConnection =  Jsoup.connect(url);
-                Document myDocument = myConnection.get();
-
-                if (myConnection.response().statusCode() == 200) {
-                    //System.out.println("Received web page at " + url);
-                    return myDocument;
-                }
-
-                return null;
-            } catch (IOException e) {
-                System.out.println("my id is "+this.id+" this url is a bitch " + url);
-                return null;
             }
         }
 
-        private String normalizeURL(String url){
+    }
+
+    private Document request(String url) {
+        try {
+            Connection myConnection =  Jsoup.connect(url);
+            Document myDocument = myConnection.get();
+
+            if (myConnection.response().statusCode() == 200) {
+                //System.out.println("Received web page at " + url);
+                return myDocument;
+            }
+
+            return null;
+        } catch (IOException e) {
+            System.out.println("my id is "+this.id+" this url is a bitch " + url);
+            return null;
+        }
+    }
+
+    private String normalizeURL(String url){
 //            try {
 //                URL myURL = new URL(url);
 //                return myURL.getProtocol() + "://" + myURL.getHost() + myURL.getPath();
 //            } catch (Exception e) {
 //                return null;
 //            }
-        	try {
-        		URL myurl = new URL(url);
-                URI u = myurl.toURI();
-                if( u.getFragment() != null ) {
-                    u = new URI( u.getScheme(), u.getSchemeSpecificPart(), null ); }
-        		String normalizedUrlString = u.normalize().toString();
+        try {
+            URL myurl = new URL(url);
+            URI u = myurl.toURI();
+            if( u.getFragment() != null ) {
+                u = new URI( u.getScheme(), u.getSchemeSpecificPart(), null ); }
+            String normalizedUrlString = u.normalize().toString();
 
-                //remove fragment from url
+            //remove fragment from url
 
-        		return normalizedUrlString;
-        	}
-        	catch (Exception e) {
-              return null;
-        	}
+            return normalizedUrlString;
+        } catch (Exception e) {
+            return null;
         }
+    }
 
 
 
@@ -244,5 +258,5 @@ public class WebCrawler implements Runnable {
 
         robotsFiles.put(host, robotsDisallowed);
     }
-    
+
 }
