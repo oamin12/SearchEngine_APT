@@ -2,11 +2,7 @@ package Crawler.src;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Vector;
+import java.util.*;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -128,6 +124,8 @@ public class WebCrawler implements Runnable {
                 // inserting data in the database
                 db.insert(myURL, document.title(), document.body().text(), h1TagsString, h2TagsString);
 
+                //get all connected links in this page
+                List<String> links = new ArrayList<>();
 
                 for(Element link : document.select("a[href]"))
                 {
@@ -139,7 +137,10 @@ public class WebCrawler implements Runnable {
                     {
                         qURL.add(url);
                     }
+                    links.add(url);
                 }
+//                String[] linksArray = links.toArray(new String[0]);
+                db.insertPRR(myURL, document.title(), links);
             }
         }
 
