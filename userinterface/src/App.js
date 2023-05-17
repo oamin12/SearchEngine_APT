@@ -2,7 +2,7 @@ import Footer from "./components/Footer";
 import Nav from "./components/Nav";
 import Home from "./pages/Home";
 import Results from "./pages/Results";
-import { Switch, Routes, Route } from "react-router-dom"
+import { Switch, Routes, Route } from "react-router-dom";
 
 function App() {
   return (

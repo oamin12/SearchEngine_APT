@@ -12,6 +12,11 @@
     z-index: 5;
     position: fixed;
 }
+.searchbar
+{
+    margin-left: 2rem;
+    size: 20rem;
+}
 .image
 {
     width: 5rem;
