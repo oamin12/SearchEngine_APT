@@ -57,6 +57,8 @@ const Results = (props) => {
   const [webarr2, setWebarr2] = React.useState(results.slice(start,end));
   useEffect(() => {
     setStartTime(performance.now() );
+    var date1 = new Date();
+    var time1 = date1.getTime();
     var config = {
       method: 'get',
       url: "http://localhost:8080/words?q="+id,
@@ -69,8 +71,9 @@ const Results = (props) => {
       setResults(response.data)
       setCount(Math.ceil(response.data.length/10))
       setWebarr2(response.data.slice(start,end))
-      setEndTime(performance.now());
-      setResponseTime(endTime-startTime);
+      var date2 = new Date();
+      var time2= date2.getTime();
+      setResponseTime(((time2-time1)*0.001).toFixed(3))
 
 
     })
@@ -115,7 +118,7 @@ useEffect(() => {
         <div className={classes.StatusArea}>
           <h1 className={classes.heading}>Results for {id}</h1>
           <div className={classes.stats}>
-            <p className={classes.stat}>({responseTime} milli seconds)</p>
+            <p className={classes.stat}>({responseTime} seconds)</p>
           </div>
         </div>
         <div className={classes.resultsWithDucky}>
