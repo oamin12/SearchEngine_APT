@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import resultNav from "../components/resultNav";
-import WebCard from "../components/webCard";
+import WebCard from "../components/WebCard";
 import classes from "./style/results.module.css";
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
